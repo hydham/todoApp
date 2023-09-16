@@ -1,0 +1,105 @@
+<html lang="en">
+  <head>
+    <meta charset="UTF-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    <title>TODO App</title>
+  </head>
+  <script>
+    function todoDelete(id) {
+      fetch("http://localhost:3000/todos/" + id, {
+        method: "DELETE",
+      }).then(() => {
+        var parentElement = document.getElementById("mainArea");
+        var childElement = document.getElementById(id);
+        parentElement.removeChild(childElement);
+      });
+    }
+
+    function getData() {
+      fetch("http://localhost:3000/todos/", {
+        method: "GET",
+      })
+        .then((response) => response.json())
+        .then((todos) => {
+          var parentElement = document.getElementById("mainArea");
+          for (let i = 0; i < todos.length; i++) {
+            var todo = todos[i];
+            var todoElement = document.createElement("div");
+            todoElement.setAttribute("id", todo.id);
+
+            var titleElement = document.createElement("span");
+            titleElement.innerHTML = todo.title;
+
+            var descElement = document.createElement("span");
+            descElement.innerHTML = todo.description;
+
+            var deleteElement = document.createElement("button");
+            deleteElement.innerHTML = "Delete";
+            deleteElement.setAttribute(
+              "onclick",
+              "todoDelete(" + todo.id + ")"
+            );
+
+            todoElement.appendChild(titleElement);
+            todoElement.appendChild(descElement);
+            todoElement.appendChild(deleteElement);
+
+            parentElement.appendChild(todoElement);
+          }
+        });
+    }
+
+    getData();
+
+    function onPress() {
+      var title = document.getElementById("title").value;
+      var description = document.getElementById("description").value;
+
+      fetch("http://localhost:3000/todos/", {
+        method: "POST",
+        body: JSON.stringify({
+          title: title,
+          description: description,
+        }),
+        headers: {
+          "Content-Type": "application/json",
+        },
+      })
+        .then((response) => response.json())
+        .then((data) => {
+          console.log(data);
+          var parentElement = document.getElementById("mainArea");
+          var todo = data;
+          var todoElement = document.createElement("div");
+
+          var titleElement = document.createElement("span");
+          titleElement.innerHTML = todo.title;
+
+          var descElement = document.createElement("span");
+          descElement.innerHTML = todo.description;
+
+          var deleteElement = document.createElement("button");
+          deleteElement.innerHTML = "Delete";
+
+          todoElement.appendChild(titleElement);
+          todoElement.appendChild(descElement);
+          todoElement.appendChild(deleteElement);
+
+          parentElement.appendChild(todoElement);
+        });
+    }
+  </script>
+
+  <body>
+    Todo title
+    <input type="text" id="title" />
+    <br />
+    <br />
+    Todo description
+    <input type="text" id="description" />
+    <br />
+    <br />
+    <button onclick="onPress()">send todo</button>
+    <div id="mainArea"></div>
+  </body>
+</html>
